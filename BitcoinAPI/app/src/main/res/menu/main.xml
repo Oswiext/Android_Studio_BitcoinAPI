@@ -5,8 +5,23 @@
     <item
         android:id="@+id/action_load"
         android:orderInCategory="50"
-        android:title="Load"
-        app:showAsAction="always" />
+        android:title="USD"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/action_loadtwo"
+        android:orderInCategory="50"
+        android:title="GBP"
+        app:showAsAction="never"
+        android:visible="false"
+        />
+    <item
+        android:id="@+id/action_loadthree"
+        android:orderInCategory="50"
+        android:title="EUR"
+        app:showAsAction="never"
+        android:visible="false"
+        />
 
 <!-- this is the action bar loading click item -->
 </menu>

@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,14 +22,21 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    Button buttonOne;
+    Button buttonTwo;
+    Button buttonThree;
+
+    // deklarera api
+
     public static final String BPI_ENDPOINT = "https://api.coindesk.com/v1/bpi/currentprice.json";
-    // We declare Bitcoin Price Index / BPI as a constant
+
+    //importera och definiera okhttp
+
     private OkHttpClient okHttpClient = new OkHttpClient();
     // We imported OkHttpClient and defined a property
 
     private ProgressDialog progressDialog;
     private TextView price;
-    //imported both and defined a property
 
 
     @Override
@@ -35,12 +44,41 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        buttonOne = (Button) findViewById(R.id.buttonOne);
+        buttonTwo = (Button) findViewById(R.id.buttonTwo);
+        buttonThree = (Button) findViewById(R.id.buttonOne);
+
         price = (TextView) findViewById(R.id.price);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("BPI Loading");
         progressDialog.setMessage("Wait ...");
+
+
+        buttonOne.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                load();
+            }
+        });
+
+        buttonTwo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadTwo();
+            }
+        });
+
+        buttonThree.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadThree();
+            }
+        });
+
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -54,6 +92,22 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_load) {
             load();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public boolean onOptionsItemSelectedtwo(MenuItem item) {
+        if (item.getItemId() == R.id.action_loadtwo) {
+            loadTwo();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public boolean onOptionsItemSelectedthree(MenuItem item) {
+        if (item.getItemId() == R.id.action_loadthree) {
+            loadThree();
         }
 
         return super.onOptionsItemSelected(item);
@@ -95,6 +149,78 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+    private void loadTwo() {
+        Request request = new Request.Builder()
+                // import okhttp request
+                .url(BPI_ENDPOINT)
+                // bpi_endpoint is declared constant adress to json
+                .build();
+
+        progressDialog.show();
+
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            //import okhttp callback
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // import okhttp call
+                // import ioexception?
+                Toast.makeText(MainActivity.this, "Error during BPI loading : "
+                        // import okhttp toast
+                        + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response)
+                    throws IOException {
+                final String body = response.body().string();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        parseBpiResponseTwo(body);
+                    }
+                });
+            }
+        });
+
+    }
+    private void loadThree() {
+        Request request = new Request.Builder()
+                // import okhttp request
+                .url(BPI_ENDPOINT)
+                // bpi_endpoint is declared constant adress to json
+                .build();
+
+        progressDialog.show();
+
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            //import okhttp callback
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // import okhttp call
+                // import ioexception?
+                Toast.makeText(MainActivity.this, "Error during BPI loading : "
+                        // import okhttp toast
+                        + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response)
+                    throws IOException {
+                final String body = response.body().string();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        parseBpiResponseThree(body);
+                    }
+                });
+            }
+        });
+
+    }
 
     private void parseBpiResponse(String body) {
         try {
@@ -106,14 +232,11 @@ public class MainActivity extends AppCompatActivity {
             builder.append(timeObject.getString("updated")).append("\n\n");
 
             JSONObject bpiObject = jsonObject.getJSONObject("bpi");
+
             JSONObject usdObject = bpiObject.getJSONObject("USD");
             builder.append(usdObject.getString("rate")).append("$").append("\n");
 
-            JSONObject gbpObject = bpiObject.getJSONObject("GBP");
-            builder.append(gbpObject.getString("rate")).append("£").append("\n");
 
-            JSONObject euroObject = bpiObject.getJSONObject("EUR");
-            builder.append(euroObject.getString("rate")).append("€").append("\n");
 
             price.setText(builder.toString());
 
@@ -122,4 +245,49 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void parseBpiResponseTwo(String body) {
+        try {
+            StringBuilder builder = new StringBuilder();
+
+            JSONObject jsonObject = new JSONObject(body);
+            // import jsonobject?
+            JSONObject timeObject = jsonObject.getJSONObject("time");
+            builder.append(timeObject.getString("updated")).append("\n\n");
+
+            JSONObject bpiObject = jsonObject.getJSONObject("bpi");
+
+            JSONObject gbpObject = bpiObject.getJSONObject("GBP");
+            builder.append(gbpObject.getString("rate")).append("£").append("\n");
+
+
+
+            price.setText(builder.toString());
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    private void parseBpiResponseThree(String body) {
+        try {
+            StringBuilder builder = new StringBuilder();
+
+            JSONObject jsonObject = new JSONObject(body);
+            // import jsonobject?
+            JSONObject timeObject = jsonObject.getJSONObject("time");
+            builder.append(timeObject.getString("updated")).append("\n\n");
+
+            JSONObject bpiObject = jsonObject.getJSONObject("bpi");
+
+            JSONObject euroObject = bpiObject.getJSONObject("EUR");
+            builder.append(euroObject.getString("rate")).append("€").append("\n");
+
+
+
+            price.setText(builder.toString());
+
+        } catch (Exception e) {
+
+        }
+    }
 }
